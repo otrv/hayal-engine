@@ -28,5 +28,5 @@ pub fn main(_: std.process.Init) !void {
         .deinit = gameDeinit,
     };
 
-    hayal.run(&game);
+    game.run();
 }
