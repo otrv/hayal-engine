@@ -12,6 +12,11 @@ pub fn build(b: *std.Build) void {
     const lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .dynamic });
     b.installArtifact(lib);
 
+    // Check step for zls build on save
+    const exe_check = b.addExecutable(.{ .name = "hayal", .root_module = mod });
+    const check = b.step("check", "Check if foo compiles");
+    check.dependOn(&exe_check.step);
+
     const mod_tests = b.addTest(.{
         .root_module = mod,
     });
