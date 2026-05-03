@@ -4,21 +4,30 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const mod = b.addModule("hayal", .{
-        .root_source_file = b.path("src/root.zig"),
+    // Dependencies
+    const dep_sokol = b.dependency("sokol", .{
         .target = target,
+        .optimize = optimize,
     });
 
+    // Main Module
+    const mod = b.addModule("hayal", .{ .root_source_file = b.path("src/root.zig"), .target = target, .imports = &.{.{
+        .name = "sokol",
+        .module = dep_sokol.module("sokol"),
+    }} });
+
+    // Library artifacts
     const dyn_lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .dynamic });
     const static_lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .static });
     b.installArtifact(dyn_lib);
     b.installArtifact(static_lib);
 
-    // Check step for zls build on save
+    // ZLS Check Step
     const exe_check = b.addExecutable(.{ .name = "hayal", .root_module = mod });
     const check = b.step("check", "Check if foo compiles");
     check.dependOn(&exe_check.step);
 
+    // Test Step
     const mod_tests = b.addTest(.{
         .root_module = mod,
     });
