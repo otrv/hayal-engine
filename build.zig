@@ -51,6 +51,7 @@ pub fn build(b: *std.Build) void {
         const ex_exe = b.addExecutable(.{
             .name = ex_name,
             .root_module = ex_mod,
+            .use_llvm = true,
         });
 
         const run_step = b.step(b.fmt("run-{s}", .{ex_name}), b.fmt("Run example {s}", .{ex_name}));

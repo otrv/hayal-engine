@@ -1,18 +1,32 @@
 const std = @import("std");
 const hayal = @import("hayal");
 
-const Io = std.Io;
+fn gameInit() anyerror!void {
+    std.log.info("Init Breakout", .{});
+}
 
-pub fn main(init: std.process.Init) !void {
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_file_writer: Io.File.Writer = .init(.stdout(), init.io, &stdout_buffer);
+fn gameUpdate(_: f64) anyerror!void {
+    std.log.info("Update Breakout", .{});
+}
 
-    const stdout_writer = &stdout_file_writer.interface;
+fn gameRender(_: f64) anyerror!void {
+    std.log.info("Render Breakout", .{});
+}
 
-    try hayal.printAnotherMessage(stdout_writer);
+fn gameDeinit() void {
+    std.log.info("Deinit breakout", .{});
+}
 
-    // Prints to stderr, unbuffered, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn main(_: std.process.Init) !void {
+    const game: hayal.Game = .{
+        .window_title = "breakout",
+        .window_width = 800,
+        .window_height = 400,
+        .init = gameInit,
+        .update = gameUpdate,
+        .render = gameRender,
+        .deinit = gameDeinit,
+    };
 
-    try stdout_writer.flush();
+    hayal.run(&game);
 }
