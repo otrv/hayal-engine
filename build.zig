@@ -17,12 +17,27 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
-    const example_program = b.option([]const u8, "ex", "The example to build as an executable");
-    if (example_program != null) {
+    // We need to register each example directory as a module for ZLS to detect their dependencies
+    const io = b.graph.io;
+    const examples_dir = b.build_root.handle.openDir(io, "examples", .{ .iterate = true }) catch {
+        return;
+    };
+    defer examples_dir.close(io);
+    var examples_it = examples_dir.iterate();
+    while (examples_it.next(io) catch null) |entry| {
+        if (entry.kind != .directory) continue;
+        const name = b.dupe(entry.name);
+        _ = b.addModule(name, .{ .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{name})), .target = target, .optimize = optimize, .imports = &.{
+            .{ .name = "hayal", .module = mod },
+        } });
+    }
+
+    const example_program = b.option([]const u8, "example", "The example to build as an executable");
+    if (example_program) |program| {
         const exe = b.addExecutable(.{
             .name = example_program.?,
             .root_module = b.createModule(.{
-                .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{example_program.?})),
+                .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{program})),
                 .target = target,
                 .optimize = optimize,
                 .imports = &.{
