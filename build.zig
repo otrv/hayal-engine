@@ -9,8 +9,10 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
-    const lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .dynamic });
-    b.installArtifact(lib);
+    const dyn_lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .dynamic });
+    const static_lib = b.addLibrary(.{ .name = "hayal", .root_module = mod, .linkage = .static });
+    b.installArtifact(dyn_lib);
+    b.installArtifact(static_lib);
 
     // Check step for zls build on save
     const exe_check = b.addExecutable(.{ .name = "hayal", .root_module = mod });
