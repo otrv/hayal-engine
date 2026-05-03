@@ -24,7 +24,7 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_mod_tests.step);
 
-    // We need to register each example directory as a module for ZLS to detect their dependencies
+    // Dynamically create run steps and executables for each example
     const io = b.graph.io;
     const examples_dir = b.build_root.handle.openDir(io, "examples", .{ .iterate = true }) catch {
         return;
@@ -33,29 +33,17 @@ pub fn build(b: *std.Build) void {
     var examples_it = examples_dir.iterate();
     while (examples_it.next(io) catch null) |entry| {
         if (entry.kind != .directory) continue;
-        const name = b.dupe(entry.name);
-        _ = b.addModule(name, .{ .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{name})), .target = target, .optimize = optimize, .imports = &.{
+        const ex_name = b.dupe(entry.name);
+        const ex_mod = b.addModule(ex_name, .{ .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{ex_name})), .target = target, .optimize = optimize, .imports = &.{
             .{ .name = "hayal", .module = mod },
         } });
-    }
-
-    const example_program = b.option([]const u8, "example", "The example to build as an executable");
-    if (example_program) |program| {
-        const exe = b.addExecutable(.{
-            .name = example_program.?,
-            .root_module = b.createModule(.{
-                .root_source_file = b.path(b.fmt("examples/{s}/src/main.zig", .{program})),
-                .target = target,
-                .optimize = optimize,
-                .imports = &.{
-                    .{ .name = "hayal", .module = mod },
-                },
-            }),
+        const ex_exe = b.addExecutable(.{
+            .name = ex_name,
+            .root_module = ex_mod,
         });
-        b.installArtifact(exe);
 
-        const run_step = b.step("run", "Run the app");
-        const run_cmd = b.addRunArtifact(exe);
+        const run_step = b.step(b.fmt("run-{s}", .{ex_name}), b.fmt("Run example {s}", .{ex_name}));
+        const run_cmd = b.addRunArtifact(ex_exe);
         run_step.dependOn(&run_cmd.step);
         run_cmd.step.dependOn(b.getInstallStep());
         if (b.args) |args| {
