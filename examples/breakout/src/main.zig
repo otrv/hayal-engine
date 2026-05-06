@@ -3,23 +3,17 @@ const hayal = @import("hayal");
 
 const GameState = struct {};
 
-fn gameInit(_: *GameState) anyerror!void {
-    std.log.info("Init Breakout", .{});
-}
+fn gameInit(_: *GameState) anyerror!void {}
 
-fn gameUpdate(_: *GameState, _: f64) anyerror!void {
-    std.log.info("Update Breakout", .{});
-}
+fn gameUpdate(_: *GameState, _: f64) anyerror!void {}
 
-fn gameRender(_: *GameState, _: f64) anyerror!void {
-    std.log.info("Render Breakout", .{});
-}
+fn gameRender(_: *GameState, _: f64) anyerror!void {}
 
-fn gameDeinit(_: *GameState) void {
-    std.log.info("Deinit breakout", .{});
-}
+fn gameDeinit(_: *GameState) void {}
 
 pub fn main(_: std.process.Init) !void {
+    var state = GameState{};
+
     var game: hayal.Game(GameState) = .{
         .window_title = "breakout",
         .window_width = 800,
@@ -28,6 +22,7 @@ pub fn main(_: std.process.Init) !void {
         .update_fn = gameUpdate,
         .render_fn = gameRender,
         .deinit_fn = gameDeinit,
+        .user_data = &state,
     };
 
     game.run();
