@@ -1,3 +1,5 @@
+const Allocator = @import("std").mem.Allocator;
+
 const sokol = @import("sokol");
 const slog = sokol.log;
 const sg = sokol.gfx;
@@ -18,16 +20,16 @@ pub fn Game(comptime T: type) type {
         window_width: u16,
         window_height: u16,
         window_title: [*:0]const u8,
-        user_data: *T,
+        user_data: T = T{},
 
         const state = struct {
-            var game: ?*const Self = null;
+            var game: ?*Self = null;
             var pass_action: sg.PassAction = .{};
         };
 
         export fn init() void {
             if (state.game) |game| {
-                game.init_fn(game.user_data) catch {
+                game.init_fn(&game.user_data) catch {
                     sapp.requestQuit();
                     return;
                 };
@@ -49,11 +51,11 @@ pub fn Game(comptime T: type) type {
             const dt: f64 = sapp.frameDuration();
 
             if (state.game) |game| {
-                game.update_fn(game.user_data, dt) catch {
+                game.update_fn(&game.user_data, dt) catch {
                     sapp.requestQuit();
                     return;
                 };
-                game.render_fn(game.user_data, dt) catch {
+                game.render_fn(&game.user_data, dt) catch {
                     sapp.requestQuit();
                     return;
                 };
@@ -68,13 +70,13 @@ pub fn Game(comptime T: type) type {
 
         export fn cleanup() void {
             if (state.game) |game| {
-                game.deinit_fn(game.user_data);
+                game.deinit_fn(&game.user_data);
             }
 
             sg.shutdown();
         }
 
-        pub fn run(self: *const Self) void {
+        pub fn run(self: *Self) void {
             state.game = self;
 
             sapp.run(.{

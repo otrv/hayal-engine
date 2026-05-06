@@ -20,9 +20,7 @@ fn gameDeinit(_: *GameState) void {
 }
 
 pub fn main(_: std.process.Init) !void {
-    var game_state = GameState{};
-
-    const game: hayal.Game(GameState) = .{
+    var game: hayal.Game(GameState) = .{
         .window_title = "breakout",
         .window_width = 800,
         .window_height = 400,
@@ -30,7 +28,6 @@ pub fn main(_: std.process.Init) !void {
         .update_fn = gameUpdate,
         .render_fn = gameRender,
         .deinit_fn = gameDeinit,
-        .user_data = &game_state,
     };
 
     game.run();
