@@ -1,1 +1,1 @@
-pub const Game = @import("game.zig").Game;
+pub const Platform = @import("platform.zig").Platform;
