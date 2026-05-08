@@ -10,9 +10,9 @@ pub fn Platform(comptime T: type) type {
     return struct {
         const Self = @This();
 
-        init_fn: *const fn (*T) anyerror!void,
-        frame_fn: *const fn (*T, f64) anyerror!void,
-        deinit_fn: *const fn (*T) void,
+        init_fn: *const fn (user_data: *T) anyerror!void,
+        frame_fn: *const fn (user_data: *T, dt: f64, framebuffer_size: [2]f32) anyerror!void,
+        deinit_fn: *const fn (user_data: *T) void,
         window_width: u16,
         window_height: u16,
         window_title: [:0]const u8,
@@ -31,7 +31,7 @@ pub fn Platform(comptime T: type) type {
             const self: *Self = @ptrCast(@alignCast(ud.?));
 
             const dt: f64 = sapp.frameDuration();
-            self.frame_fn(self.user_data, dt) catch {
+            self.frame_fn(self.user_data, dt, .{ sapp.widthf(), sapp.heightf() }) catch {
                 sapp.requestQuit();
                 return;
             };

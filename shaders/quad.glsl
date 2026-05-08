@@ -1,16 +1,14 @@
 @vs vs
-layout(binding=0) uniform vs_params {
-  vec4 rect; // x, y, w, h
-  vec4 color;
-};
+layout(binding=0) uniform vs_globals { mat4 view_projection; };
 
 in vec2 position;
+in vec4 color0;
 
 out vec4 v_color;
 
 void main() {
-    gl_Position = vec4(position * rect.zw + rect.xy, 0.0, 1.0);
-    v_color = color;
+    gl_Position = view_projection * vec4(position, 0.0, 1.0);
+    v_color = color0;
 }
 @end
 

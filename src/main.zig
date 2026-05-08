@@ -8,21 +8,19 @@ const GameState = struct {
 };
 
 fn gameInit(state: *GameState) anyerror!void {
-    state.renderer.init();
+    state.renderer.setup();
 }
 
-fn gameUpdate(state: *GameState, _: f64) anyerror!void {
-    state.renderer.setClearColor(.{ .r = 1, .g = 1, .b = 1, .a = 1 });
+fn gameUpdate(state: *GameState, _: f64, framebuffer_size: [2]f32) anyerror!void {
+    state.renderer.setClearColor(.{ 0, 0, 0, 1 });
 
-    state.renderer.beginPass();
-
-    state.renderer.drawQuad(.{ .x = -0.5, .y = -0.5, .w = 1, .h = 1 }, .{ .r = 0, .g = 0, .b = 0, .a = 1 });
+    state.renderer.beginPass(framebuffer_size, .{ 0, 0 }, 1);
 
     state.renderer.endPass();
 }
 
 fn gameDeinit(state: *GameState) void {
-    state.renderer.deinit();
+    state.renderer.destroy();
 }
 
 pub fn main(_: std.process.Init) !void {
