@@ -76,7 +76,7 @@ pub fn setClearColor(self: *Self, rgba: math.Vec4) void {
     self.pass_action.colors[0].clear_value = .{ .r = rgba[0], .g = rgba[1], .b = rgba[2], .a = rgba[3] };
 }
 
-pub fn beginPass(self: *Self, framebuffer_size: math.Vec2, camera_pos: math.Vec2, camera_zoom: f32) void {
+pub fn begin(self: *Self, framebuffer_size: math.Vec2, camera_pos: math.Vec2, camera_zoom: f32) void {
     std.debug.assert(self.is_initialized);
 
     sg.beginPass(.{ .action = self.pass_action, .swapchain = sglue.swapchain() });
@@ -140,7 +140,7 @@ fn flush(self: *Self) void {
     self.quad_count = 0;
 }
 
-pub fn endPass(self: *Self) void {
+pub fn end(self: *Self) void {
     std.debug.assert(self.is_initialized);
 
     self.flush();

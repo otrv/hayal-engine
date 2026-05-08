@@ -13,10 +13,9 @@ fn gameInit(state: *GameState) anyerror!void {
 
 fn gameUpdate(state: *GameState, _: f64, framebuffer_size: [2]f32) anyerror!void {
     state.renderer.setClearColor(.{ 0, 0, 0, 1 });
-
-    state.renderer.beginPass(framebuffer_size, .{ 0, 0 }, 1);
-
-    state.renderer.endPass();
+    state.renderer.begin(framebuffer_size, .{ 0, 0 }, 1);
+    state.renderer.drawQuad(.{ 100, 100 }, .{ 20, 20 }, 0, .{ 1, 1, 1, 1 });
+    state.renderer.end();
 }
 
 fn gameDeinit(state: *GameState) void {
