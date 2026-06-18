@@ -1,11 +1,10 @@
-#include "render.h"
 #define RGFW_OPENGL
 #define RGFW_IMPLEMENTATION
 #include <RGFW.h>
 #define GLM_HEADER_ONLY
 #include <cglm/cglm.h>
 
-#include "render.c"
+#include "gfx.c"
 
 #include <glad/glad.h>
 #include <stdio.h>
@@ -24,10 +23,10 @@ int main(void) {
 
   gladLoadGLLoader((GLADloadproc)RGFW_getProcAddress_OpenGL);
 
-  Renderer renderer = RendererInit(SCREEN_WIDTH, SCREEN_HEIGHT);
+  Gfx gfx = GfxInit(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   uint8_t white_tex[4] = {255, 255, 255, 255};
-  uint8_t white_tex_id = RendererLoadTexture((const char *)white_tex, 1, 1);
+  uint8_t white_tex_id = GfxLoadTexture((const char *)white_tex, 1, 1);
 
   while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
     RGFW_event event;
@@ -37,17 +36,17 @@ int main(void) {
       }
     }
 
-    RendererBeginFrame(&renderer);
+    GfxBeginFrame(&gfx);
 
-    RendererClear(&renderer, (vec4){0, 0, 0, 1});
-    RendererPushQuad(&renderer, (vec4){0, 0, 50, 50}, white_tex_id, (vec4){0, 0, 1, 1}, (vec4){1, 1, 1, 1});
+    GfxClear(&gfx, (vec4){0, 0, 0, 1});
+    GfxPushQuad(&gfx, (vec4){0, 0, 50, 50}, white_tex_id, (vec4){0, 0, 1, 1}, (vec4){1, 1, 1, 1});
 
-    RendererEndFrame(&renderer);
+    GfxEndFrame(&gfx);
 
     RGFW_window_swapBuffers_OpenGL(win);
   }
 
-  RendererFreeTexture(white_tex_id);
+  GfxFreeTexture(white_tex_id);
 
   RGFW_window_close(win);
   return 0;

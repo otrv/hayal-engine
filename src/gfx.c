@@ -1,4 +1,4 @@
-#include "render.h"
+#include "gfx.h"
 
 // TODO: shader needs to be updated manually
 #define MAX_TEXTURES 8
@@ -12,7 +12,7 @@ typedef struct {
   float tex_idx;
 } Vertex;
 
-struct Renderer {
+struct Gfx {
   Vertex triangles[MAX_VERTICES];
   uint32_t textures[MAX_TEXTURES];
   uint32_t viewport_width;
@@ -25,8 +25,8 @@ struct Renderer {
   uint32_t proj_loc;
 };
 
-Renderer RendererInit(uint32_t viewport_x, uint32_t viewport_y) {
-  Renderer r = {};
+Gfx GfxInit(uint32_t viewport_x, uint32_t viewport_y) {
+  Gfx r = {};
   glGenVertexArrays(1, &r.vao);
   glBindVertexArray(r.vao);
 
@@ -120,23 +120,23 @@ Renderer RendererInit(uint32_t viewport_x, uint32_t viewport_y) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  RendererSetViewport(&r, viewport_x, viewport_y);
+  GfxSetViewport(&r, viewport_x, viewport_y);
 
   return r;
 }
 
-void RendererDeinit(Renderer *r) {
+void GfxDeinit(Gfx *r) {
   glDeleteBuffers(1, &r->vbo);
   glDeleteVertexArrays(1, &r->vao);
   glDeleteProgram(r->program);
 }
 
-void RendererSetViewport(Renderer *r, uint32_t viewport_width, uint32_t viewport_height) {
+void GfxSetViewport(Gfx *r, uint32_t viewport_width, uint32_t viewport_height) {
   r->viewport_width = viewport_width;
   r->viewport_height = viewport_height;
 }
 
-void RendererBeginFrame(Renderer *r) {
+void GfxBeginFrame(Gfx *r) {
   mat4 proj_view;
   glm_ortho(0, r->viewport_width, r->viewport_height, 0, -0.01, 1.0, proj_view);
   glUniformMatrix4fv(r->proj_loc, 1, GL_FALSE, (float *)proj_view);
@@ -144,7 +144,7 @@ void RendererBeginFrame(Renderer *r) {
   r->texture_count = 0;
 }
 
-void RendererEndFrame(Renderer *r) {
+void GfxEndFrame(Gfx *r) {
   for (uint32_t i = 0; i < r->texture_count; i++) {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, r->textures[i]);
@@ -158,12 +158,12 @@ void RendererEndFrame(Renderer *r) {
   glDrawArrays(GL_TRIANGLES, 0, r->triangle_count * 3);
 }
 
-void RendererClear(Renderer *r, vec4 color) {
+void GfxClear(Gfx *r, vec4 color) {
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-uint32_t RendererLoadTexture(const char *data, uint32_t w, uint32_t h) {
+uint32_t GfxLoadTexture(const char *data, uint32_t w, uint32_t h) {
   uint32_t tex_id;
   glGenTextures(1, &tex_id);
   glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -175,12 +175,12 @@ uint32_t RendererLoadTexture(const char *data, uint32_t w, uint32_t h) {
   return tex_id;
 }
 
-void RendererFreeTexture(uint32_t tex_id) {
+void GfxFreeTexture(uint32_t tex_id) {
   glDeleteTextures(1, &tex_id);
 }
 
-static void RendererPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_color, vec4 b_color,
-                                 vec4 c_color, vec2 a_uv, vec2 b_uv, vec2 c_uv, uint32_t tex_id) {
+static void GfxPushTriangle(Gfx *r, vec2 a, vec2 b, vec2 c, vec4 a_color, vec4 b_color, vec4 c_color,
+                            vec2 a_uv, vec2 b_uv, vec2 c_uv, uint32_t tex_id) {
 
   uint32_t tex_idx = MAX_TEXTURES;
   for (uint32_t i = 0; i < r->texture_count; i++) {
@@ -191,7 +191,7 @@ static void RendererPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_col
   }
 
   if (r->triangle_count == MAX_TRIANGLES || (r->texture_count == MAX_TEXTURES && tex_idx == MAX_TEXTURES)) {
-    RendererEndFrame(r);
+    GfxEndFrame(r);
 
     r->triangle_count = 0;
     r->texture_count = 0;
@@ -223,13 +223,13 @@ static void RendererPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_col
   r->triangle_count++;
 }
 
-void RendererPushQuad(Renderer *r, vec4 quad, uint32_t tex_id, vec4 uv, vec4 tint) {
+void GfxPushQuad(Gfx *r, vec4 quad, uint32_t tex_id, vec4 uv, vec4 tint) {
   float x = quad[0], y = quad[1], w = quad[2], h = quad[3];
   float u = uv[0], v = uv[1], uw = uv[2], uh = uv[3];
 
-  RendererPushTriangle(r, (vec2){x, y}, (vec2){x + w, y}, (vec2){x + w, y + h}, tint, tint, tint,
-                       (vec2){u, v}, (vec2){u + uw, v}, (vec2){u + uw, v + uh}, tex_id);
+  GfxPushTriangle(r, (vec2){x, y}, (vec2){x + w, y}, (vec2){x + w, y + h}, tint, tint, tint, (vec2){u, v},
+                  (vec2){u + uw, v}, (vec2){u + uw, v + uh}, tex_id);
 
-  RendererPushTriangle(r, (vec2){x, y}, (vec2){x + w, y + h}, (vec2){x, y + h}, tint, tint, tint,
-                       (vec2){u, v}, (vec2){u + uw, v + uh}, (vec2){u, v + uh}, tex_id);
+  GfxPushTriangle(r, (vec2){x, y}, (vec2){x + w, y + h}, (vec2){x, y + h}, tint, tint, tint, (vec2){u, v},
+                  (vec2){u + uw, v + uh}, (vec2){u, v + uh}, tex_id);
 }
