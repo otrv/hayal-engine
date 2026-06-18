@@ -4,7 +4,8 @@
 #define GLM_HEADER_ONLY
 #include <cglm/cglm.h>
 
-#include "gfx.c"
+#include "gfx_gl.c"
+#include "draw.c"
 
 #include <glad/glad.h>
 #include <stdio.h>
@@ -13,6 +14,11 @@
 #define SCREEN_HEIGHT 720
 
 int main(void) {
+  RGFW_glHints *hints = RGFW_getGlobalHints_OpenGL();
+  hints->major = 3;
+  hints->minor = 3;
+  RGFW_setGlobalHints_OpenGL(hints);
+
   RGFW_window *win = RGFW_createWindow("my_game", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
                                        RGFW_windowCenter | RGFW_windowNoResize | RGFW_windowOpenGL);
   if (win == NULL) {
@@ -25,9 +31,6 @@ int main(void) {
 
   Gfx gfx = GfxInit(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-  uint8_t white_tex[4] = {255, 255, 255, 255};
-  uint8_t white_tex_id = GfxLoadTexture((const char *)white_tex, 1, 1);
-
   while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
     RGFW_event event;
     while (RGFW_window_checkEvent(win, &event)) {
@@ -39,14 +42,12 @@ int main(void) {
     GfxBeginFrame(&gfx);
 
     GfxClear(&gfx, (vec4){0, 0, 0, 1});
-    GfxPushQuad(&gfx, (vec4){0, 0, 50, 50}, white_tex_id, (vec4){0, 0, 1, 1}, (vec4){1, 1, 1, 1});
+    DrawColoredRect(&gfx, (vec4){0, 0, 50, 50}, (vec4){1, 1, 1, 1});
 
     GfxEndFrame(&gfx);
 
     RGFW_window_swapBuffers_OpenGL(win);
   }
-
-  GfxFreeTexture(white_tex_id);
 
   RGFW_window_close(win);
   return 0;
