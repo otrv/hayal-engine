@@ -6,8 +6,7 @@
 #include <glad/glad.h>
 #include <time.h>
 
-#include "gfx_gl.c"
-#include "draw.c"
+#include "render.c"
 
 #define SCREEN_WIDTH 1080
 #define SCREEN_HEIGHT 720
@@ -34,7 +33,7 @@ int main(void) {
 
   gladLoadGLLoader((GLADloadproc)RGFW_getProcAddress_OpenGL);
 
-  Gfx gfx = GfxInit(SCREEN_WIDTH, SCREEN_HEIGHT);
+  Renderer renderer = RenderInit(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   double target_time = 1.0 / TARGET_FPS;
   double last_time = GetTime();
@@ -51,12 +50,12 @@ int main(void) {
       }
     }
 
-    GfxBeginFrame(&gfx);
+    RenderBeginFrame(&renderer);
 
-    GfxClear(&gfx, (vec4){0, 0, 0, 1});
-    DrawColoredRect(&gfx, (vec4){0, 0, 50, 50}, (vec4){1, 1, 1, 1});
+    RenderClear(&renderer, (vec4){0, 0, 0, 1});
+    RenderColoredRect(&renderer, (vec4){0, 0, 50, 50}, (vec4){1, 1, 1, 1});
 
-    GfxEndFrame(&gfx);
+    RenderEndFrame(&renderer);
 
     RGFW_window_swapBuffers_OpenGL(win);
 
