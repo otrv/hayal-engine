@@ -17,10 +17,24 @@ typedef double f64;
 typedef int b32;
 typedef char b8;
 
-#ifdef _DEBUG
-#define ASSERT(cond) ((void)0)
+#if _MSC_VER
+#include <intrin.h>
+#define debugBreak() __debugbreak()
 #else
-#define ASSERT(cond) ((cond) ? (void)0 : __builtin_trap())
+#define debugBreak() __builtin_trap()
+#endif
+
+void ReportAssertionFailure(const char *expression, const char *file, i32 line);
+
+#ifdef _DEBUG
+#define ASSERT(expr)                                                                                         \
+  if (expr) {                                                                                                \
+  } else {                                                                                                   \
+    ReportAssertionFailure(#expr, __FILE__, __LINE__);                                                       \
+    debugBreak();                                                                                            \
+  }
+#else
+#define ASSERT(cond) ((void)0)
 #endif
 
 #define NOT_IMPLEMENTED ASSERT(!"Not Implemented!")

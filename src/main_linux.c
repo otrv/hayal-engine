@@ -1,6 +1,7 @@
 #include "os_linux.c"
 #include "render_gl.c"
 #include "render.c"
+#include "log.c"
 
 #define RGFW_INT_DEFINED
 #define RGFW_OPENGL
