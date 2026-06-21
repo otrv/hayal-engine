@@ -14,18 +14,18 @@ typedef struct {
 
 struct Renderer {
   Vertex triangles[MAX_VERTICES];
-  uint32_t textures[MAX_TEXTURES];
-  uint32_t viewport_width;
-  uint32_t viewport_height;
-  uint32_t vao;
-  uint32_t vbo;
-  uint32_t program;
-  uint32_t triangle_count;
-  uint32_t texture_count;
-  uint32_t proj_loc;
+  u32 textures[MAX_TEXTURES];
+  u32 viewport_width;
+  u32 viewport_height;
+  u32 vao;
+  u32 vbo;
+  u32 program;
+  u32 triangle_count;
+  u32 texture_count;
+  u32 proj_loc;
 };
 
-Renderer RenderInit(uint32_t viewport_x, uint32_t viewport_y) {
+Renderer RenderInit(u32 viewport_x, u32 viewport_y) {
   Renderer r = {};
   glGenVertexArrays(1, &r.vao);
   glBindVertexArray(r.vao);
@@ -46,8 +46,8 @@ Renderer RenderInit(uint32_t viewport_x, uint32_t viewport_y) {
 
   r.program = glCreateProgram();
 
-  uint32_t vert_shader = glCreateShader(GL_VERTEX_SHADER);
-  uint32_t frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  u32 vert_shader = glCreateShader(GL_VERTEX_SHADER);
+  u32 frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // TODO: move to a file once we have proper file reading
   const char *vert_code = "#version 330 core\n"
@@ -110,9 +110,9 @@ Renderer RenderInit(uint32_t viewport_x, uint32_t viewport_y) {
 
   r.proj_loc = glGetUniformLocation(r.program, "u_proj");
 
-  uint32_t tex_loc = glGetUniformLocation(r.program, "u_tex");
-  int32_t textures[MAX_TEXTURES] = {};
-  for (uint32_t i = 0; i < MAX_TEXTURES; i++) {
+  u32 tex_loc = glGetUniformLocation(r.program, "u_tex");
+  i32 textures[MAX_TEXTURES] = {};
+  for (u32 i = 0; i < MAX_TEXTURES; i++) {
     textures[i] = i;
   }
   glUniform1iv(tex_loc, MAX_TEXTURES, textures);
@@ -131,7 +131,7 @@ void RenderDeinit(Renderer *r) {
   glDeleteProgram(r->program);
 }
 
-void RenderSetViewport(Renderer *r, uint32_t viewport_width, uint32_t viewport_height) {
+void RenderSetViewport(Renderer *r, u32 viewport_width, u32 viewport_height) {
   r->viewport_width = viewport_width;
   r->viewport_height = viewport_height;
 }
@@ -145,7 +145,7 @@ void RenderBeginFrame(Renderer *r) {
 }
 
 void RenderEndFrame(Renderer *r) {
-  for (uint32_t i = 0; i < r->texture_count; i++) {
+  for (u32 i = 0; i < r->texture_count; i++) {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, r->textures[i]);
   }
@@ -163,8 +163,8 @@ void RenderClear(Renderer *r, vec4 color) {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-uint32_t RenderLoadTexture(const char *data, uint32_t w, uint32_t h) {
-  uint32_t tex_id;
+u32 RenderLoadTexture(const char *data, u32 w, u32 h) {
+  u32 tex_id;
   glGenTextures(1, &tex_id);
   glBindTexture(GL_TEXTURE_2D, tex_id);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -175,15 +175,15 @@ uint32_t RenderLoadTexture(const char *data, uint32_t w, uint32_t h) {
   return tex_id;
 }
 
-void RenderFreeTexture(uint32_t tex_id) {
+void RenderFreeTexture(u32 tex_id) {
   glDeleteTextures(1, &tex_id);
 }
 
 static void RenderPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_color, vec4 b_color, vec4 c_color,
-                               vec2 a_uv, vec2 b_uv, vec2 c_uv, uint32_t tex_id) {
+                               vec2 a_uv, vec2 b_uv, vec2 c_uv, u32 tex_id) {
 
-  uint32_t tex_idx = MAX_TEXTURES;
-  for (uint32_t i = 0; i < r->texture_count; i++) {
+  u32 tex_idx = MAX_TEXTURES;
+  for (u32 i = 0; i < r->texture_count; i++) {
     if (r->textures[i] == tex_id) {
       tex_idx = i;
       break;
@@ -199,7 +199,7 @@ static void RenderPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_color
   }
 
   if (tex_idx == MAX_TEXTURES) {
-    assert(r->texture_count < MAX_TEXTURES);
+    ASSERT(r->texture_count < MAX_TEXTURES);
     r->textures[r->texture_count] = tex_id;
     tex_idx = r->texture_count;
     r->texture_count += 1;
@@ -223,7 +223,7 @@ static void RenderPushTriangle(Renderer *r, vec2 a, vec2 b, vec2 c, vec4 a_color
   r->triangle_count++;
 }
 
-void RenderPushQuad(Renderer *r, vec4 quad, uint32_t tex_id, vec4 uv, vec4 tint) {
+void RenderPushQuad(Renderer *r, vec4 quad, u32 tex_id, vec4 uv, vec4 tint) {
   float x = quad[0], y = quad[1], w = quad[2], h = quad[3];
   float u = uv[0], v = uv[1], uw = uv[2], uh = uv[3];
 
@@ -234,11 +234,11 @@ void RenderPushQuad(Renderer *r, vec4 quad, uint32_t tex_id, vec4 uv, vec4 tint)
                      (vec2){u + uw, v + uh}, (vec2){u, v + uh}, tex_id);
 }
 
-static int32_t white_tex_id;
+static i32 white_tex_id;
 
 void RenderColoredRect(Renderer *r, vec4 rect, vec4 color) {
   if (!white_tex_id) {
-    uint8_t white_tex[4] = {255, 255, 255, 255};
+    u8 white_tex[4] = {255, 255, 255, 255};
     white_tex_id = RenderLoadTexture((const char *)white_tex, 1, 1);
   }
 

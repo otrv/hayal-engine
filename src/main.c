@@ -1,3 +1,6 @@
+#include "render.c"
+
+#define RGFW_INT_DEFINED
 #define RGFW_OPENGL
 #define RGFW_IMPLEMENTATION
 #include <RGFW.h>
@@ -5,8 +8,6 @@
 #include <cglm/cglm.h>
 #include <glad/glad.h>
 #include <time.h>
-
-#include "render.c"
 
 #define SCREEN_WIDTH 1080
 #define SCREEN_HEIGHT 720

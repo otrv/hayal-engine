@@ -10,21 +10,21 @@
 
 #include <cglm/cglm.h>
 #include <glad/glad.h>
-#include <stdint.h>
+#include "core.h"
 
 // LOW LEVEL API
 
 typedef struct Renderer Renderer;
 
-Renderer RenderInit(uint32_t viewport_x, uint32_t viewport_y);
+Renderer RenderInit(u32 viewport_x, u32 viewport_y);
 void RenderDeinit(Renderer *r);
-void RenderSetViewport(Renderer *r, uint32_t viewport_x, uint32_t viewport_y);
+void RenderSetViewport(Renderer *r, u32 viewport_x, u32 viewport_y);
 void RenderBeginFrame(Renderer *r);
 void RenderEndFrame(Renderer *r);
 void RenderClear(Renderer *r, vec4 color);
-uint32_t RenderLoadTexture(const char *data, uint32_t w, uint32_t h);
-void RenderFreeTexture(uint32_t tex_id);
-void RenderPushQuad(Renderer *r, vec4 quad, uint32_t tex_id, vec4 uv, vec4 tint);
+u32 RenderLoadTexture(const char *data, u32 w, u32 h);
+void RenderFreeTexture(u32 tex_id);
+void RenderPushQuad(Renderer *r, vec4 quad, u32 tex_id, vec4 uv, vec4 tint);
 
 // END LOW LEVEL API
 
