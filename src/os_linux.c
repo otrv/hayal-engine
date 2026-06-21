@@ -1,10 +1,13 @@
-#define _POSIX_C_SOURCE 199309L
 #include "os.h"
+
+#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <sys/mman.h>
+
+// TODO: switch to internal string api once it exists
 
 double OSGetMonotonicTimeSeconds() {
   struct timespec t;
@@ -28,8 +31,12 @@ void *OSMemReserve(u64 size) {
 }
 
 b32 OSMemCommit(void *ptr, u64 size) {
-  u8 res = mprotect(ptr, size, PROT_READ | PROT_WRITE);
+  i8 res = mprotect(ptr, size, PROT_READ | PROT_WRITE);
   return res == 0;
+}
+
+void OSMemRelease(void *ptr, u64 size) {
+  munmap(ptr, size);
 }
 
 void *OSMemCopy(void *dest, const void *src, u64 size) {

@@ -1,15 +1,16 @@
 [
   {
-    "file": "src/main.c",
+    "file": "src/main_linux.c",
     "arguments": [
       "/usr/bin/clang",
-      "src/main.c",
+      "src/main_linux.c",
       "--std=c99",
       "-Wall",
       "-Werror",
       "-fsanitize=address",
       "-isystem",
       "./vendor",
+      "-D_DEBUG",
       "-o",
       "my_game"
     ],
@@ -27,6 +28,7 @@
       "-fsanitize=address",
       "-isystem",
       "./vendor",
+      "-D_DEBUG",
       "-o",
       "my_game"
     ],

@@ -17,7 +17,7 @@ typedef double f64;
 typedef int b32;
 typedef char b8;
 
-#ifdef NDEBUG
+#ifdef _DEBUG
 #define ASSERT(cond) ((void)0)
 #else
 #define ASSERT(cond) ((cond) ? (void)0 : __builtin_trap())
@@ -25,7 +25,7 @@ typedef char b8;
 
 #define NOT_IMPLEMENTED ASSERT(!"Not Implemented!")
 
-#if defined(__clang__) || defined(__gcc__)
+#if defined(__clang__) || defined(__GNUC__)
 #define STATIC_ASSERT _Static_assert
 #else
 #define STATIC_ASSERT static_assert
